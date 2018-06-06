@@ -1,0 +1,51 @@
+Sub DeleteLinesAndPageBreaksAddText()
+  Dim StrFolder As String
+  Dim strFile As String
+  Dim objDoc As Document
+  Dim dlgFile As FileDialog
+ 
+  Set dlgFile = Application.FileDialog(msoFileDialogFolderPicker)
+ 
+  With dlgFile
+    If .Show = -1 Then
+      StrFolder = .SelectedItems(1) & "\"
+    Else
+      MsgBox "No folder is selected."
+      Exit Sub
+    End If
+  End With
+ 
+  strFile = Dir(StrFolder & "*.docx", vbNormal)
+ 
+  While strFile <> ""
+    Set objDoc = Documents.Open(FileName:=StrFolder & strFile)
+ 
+    With Selection
+      .HomeKey Unit:=wdStory
+      With Selection.Find
+        .ClearFormatting
+        .Replacement.ClearFormatting
+        .Text = "^b"
+        .Replacement.Text = ""
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+      End With
+      Selection.Find.Execute Replace:=wdReplaceAll
+      Selection.MoveDown Unit:=wdLine, Count:=43
+      Selection.MoveUp Unit:=wdLine, Count:=5, Extend:=wdExtend
+      Selection.Delete Unit:=wdCharacter, Count:=1
+      Selection.TypeText Text:="Leder"
+
+    End With
+ 
+    objDoc.Save
+    objDoc.Close
+    strFile = Dir()
+  Wend
+End Sub
